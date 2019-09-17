@@ -13,6 +13,6 @@ Some thoughts to improve upon:
 * Make the processes more generic and portable
 * Use named ranges to save some hardcoding.
 
-![2016 Stock Marker](Images/2016_stock.Png)
-![2015 Stock Marker](Images/2015_stock.Png)
-![2014 Stock Marker](Images/2014_stock.Png)
+![2016 Stock Marker](Images/2016_stock.PNG)
+![2015 Stock Marker](Images/2015_stock.PNG)
+![2014 Stock Marker](Images/2014_stock.PNG)
