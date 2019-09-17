@@ -4,6 +4,10 @@ Option Explicit
 'Filters the list into a column of unique tickers'
 
 Sub CreateUniqueList()
+Application.ScreenUpdating = False
+Application.Calculation = xlCalculationManual
+ActiveSheet.DisplayPageBreaks = False
+
 Dim lastrow As Long
 Dim lastunique As Long
 
@@ -69,7 +73,7 @@ For Each uni_ticker In uni_ticker_range
                 max_date = raw_ticker.Offset(0, 1).Value
                 year_close = raw_ticker.Offset(0, 5)
             End If
-            If min_date > raw_ticker.Offset(0, 1).Value Then
+            If min_date > raw_ticker.Offset(0, 1).Value And raw_ticker.Offset(0, 2) <> 0 Then
                 min_date = raw_ticker.Offset(0, 1).Value
                 year_open = raw_ticker.Offset(0, 2).Value
             End If
@@ -83,13 +87,12 @@ For Each uni_ticker In uni_ticker_range
 '    Debug.Print year_open
 '    Debug.Print year_close
     dy = year_close - year_open
-'   Don't divide by zero
-    If year_open = 0 Then
-        'fudge factor
-        year_open = 0.01
-        p_dy = (year_close - year_open) / year_open
-    Else
+    If year_open <> 0 Then
         p_dy = dy / year_open
+    ElseIf year_open = 0 And year_close = 0 Then
+        p_dy = 0
+    Else
+        p_dy = 0
     End If
     
 '   populate table in excel sheet with our stats
@@ -127,17 +130,42 @@ Cells(2, 16).Value = max_dy
 Cells(3, 16).Value = min_dy
 Cells(4, 16).Value = max_vol
 
+Application.ScreenUpdating = True
+Application.Calculation = xlCalculationAutomatic
+ActiveSheet.DisplayPageBreaks = True
+
+End Sub
+
+Sub color_code()
+   Dim lastunique As Long, r1 As Range, i As Long
+   lastunique = Cells(Rows.Count, "I").End(xlUp).Row
+
+   For i = 2 To lastunique
+   
+      Set r1 = Range("L" & i)
+      If r1.Value < 0 Then r1.Interior.Color = vbRed
+      If r1.Value > 0 Then r1.Interior.Color = vbGreen
+      If r1.Value = 0 Then r1.Interior.Color = vbYellow
+   Next i
 End Sub
 
 Sub summarize_sheets()
+Application.ScreenUpdating = False
+Application.Calculation = xlCalculationManual
+ActiveSheet.DisplayPageBreaks = False
 
 Dim ws As Worksheet
 
          ' Loop through all of the worksheets in the active workbook.
-         For Each ws In Worksheets
-            ws.Activate
-            Call CreateUniqueList
-         Next ws
+For Each ws In Worksheets
+    ws.Activate
+    Call CreateUniqueList
+    Call color_code
+Next ws
+
+Application.ScreenUpdating = True
+Application.Calculation = xlCalculationAutomatic
+ActiveSheet.DisplayPageBreaks = True
 
 End Sub
 
